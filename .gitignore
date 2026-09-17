@@ -1,0 +1,44 @@
+# Python
+__pycache__/
+*.py[cod]
+.venv/
+venv/
+*.egg-info/
+.pytest_cache/
+
+# Node
+node_modules/
+dist/
+build/
+.vite/
+*.log
+npm-debug.log*
+
+# AWS / SAM
+.aws-sam/
+samconfig.toml
+packaged.yaml
+
+# Local backend store (dev data)
+backend/data/
+
+# Installed skills (reinstall with `npx skills@latest add ...`; tracked via skills-lock.json)
+.agents/
+.claude/
+
+# Env / secrets
+.env
+.env.*
+!.env.example
+*.pem
+
+# Amplify
+amplify/\#current-cloud-backend
+amplify/.config/local-*
+aws-exports.js
+
+# OS / editor
+.DS_Store
+Thumbs.db
+.idea/
+.vscode/

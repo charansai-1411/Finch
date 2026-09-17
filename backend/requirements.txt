@@ -1,0 +1,6 @@
+# Lambda runtime deps (what `sam build` packages).
+# boto3 is provided by the Lambda runtime, so it is NOT listed here (keeps the
+# package slim). The CSV core path needs nothing beyond the stdlib; these are
+# only for the URL-ingest "Should".
+requests>=2.31.0
+beautifulsoup4>=4.12.0

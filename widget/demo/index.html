@@ -1,0 +1,74 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Trailblaze — Running Store (Finch demo)</title>
+<style>
+  /* A deliberately different-looking host store (cool palette) to show the
+     Finch widget adapts anywhere and its shadow DOM never clashes. */
+  * { box-sizing: border-box; }
+  body { margin: 0; font-family: Georgia, "Times New Roman", serif; color: #17203a; background: #eef2f8; }
+  .top { background: #0f1b3d; color: #fff; padding: 14px 24px; display: flex; align-items: center; justify-content: space-between; }
+  .top .logo { font-weight: 700; font-size: 20px; letter-spacing: 0.02em; }
+  .top nav a { color: #c7d2ec; text-decoration: none; margin-left: 22px; font-size: 14px; }
+  .hero { padding: 56px 24px; text-align: center; background: linear-gradient(180deg, #dbe4f5, #eef2f8); }
+  .hero h1 { font-size: clamp(28px, 5vw, 46px); margin: 0; color: #0f1b3d; }
+  .hero p { color: #45527a; max-width: 40ch; margin: 14px auto 0; font-size: 17px; }
+  .hero .note { margin-top: 22px; display: inline-block; background: #fff; border: 1px solid #cdd7ec; border-radius: 10px; padding: 10px 16px; font-family: system-ui, sans-serif; font-size: 13px; color: #45527a; }
+  .hero .note b { color: #0f1b3d; }
+  .wrap { max-width: 1040px; margin: 0 auto; padding: 40px 24px 120px; }
+  h2 { font-size: 24px; color: #0f1b3d; }
+  .grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 18px; margin-top: 18px; }
+  @media (max-width: 820px) { .grid { grid-template-columns: repeat(2, 1fr); } }
+  .item { background: #fff; border: 1px solid #d9e1f0; border-radius: 12px; overflow: hidden; }
+  .item img { width: 100%; height: 150px; object-fit: cover; display: block; background: #dde; }
+  .item .b { padding: 12px 14px; }
+  .item .n { font-size: 15px; font-weight: 700; color: #17203a; }
+  .item .p { font-size: 14px; color: #45527a; margin-top: 4px; }
+  .item button { margin-top: 10px; width: 100%; padding: 8px; border: 1px solid #0f1b3d; background: #0f1b3d; color: #fff; border-radius: 8px; font-family: system-ui, sans-serif; font-size: 13px; cursor: pointer; }
+  footer { background: #0f1b3d; color: #9fb0d6; text-align: center; padding: 26px; font-size: 13px; }
+</style>
+</head>
+<body>
+  <div class="top">
+    <div class="logo">▲ TRAILBLAZE</div>
+    <nav><a href="#">Shoes</a><a href="#">Apparel</a><a href="#">Sale</a><a href="#">Cart (0)</a></nav>
+  </div>
+
+  <section class="hero">
+    <h1>Gear built for the long run.</h1>
+    <p>Shoes, apparel, and essentials for runners who don't stop.</p>
+    <div class="note">👉 This is a plain demo store. The <b>Finch</b> bubble in the corner is the whole install — one script tag. Click it and ask for a shoe.</div>
+  </section>
+
+  <div class="wrap">
+    <h2>Best sellers</h2>
+    <div class="grid" id="grid"></div>
+  </div>
+
+  <footer>© 2026 Trailblaze Footwear · demo store for Finch</footer>
+
+  <script>
+    // render a simple product grid (host store's own code)
+    var P = [
+      ['Trailblaze Running Shoe', 2799, 'sku001'],
+      ['Cloudstep Walking Shoe', 2299, 'sku002'],
+      ['Grip Trail Runner', 3499, 'sku003'],
+      ['Featherlite Sneaker', 1999, 'sku004'],
+      ['Marathon Pro', 6499, 'sku006'],
+      ['Wide-Fit Comfort Shoe', 2599, 'sku009'],
+      ['Kids Sprint Shoe', 1499, 'sku010'],
+      ['DryFit Running Tee', 899, 'sku007'],
+    ];
+    document.getElementById('grid').innerHTML = P.map(function (p) {
+      return '<div class="item"><img src="https://picsum.photos/seed/' + p[2] + '/300/200" alt=""/>'
+        + '<div class="b"><div class="n">' + p[0] + '</div><div class="p">₹' + p[1].toLocaleString('en-IN') + '</div>'
+        + '<button>Add to cart</button></div></div>';
+    }).join('');
+  </script>
+
+  <!-- ===== THE ONE LINE ===== -->
+  <script src="/v.js?key=demo_trailblaze" defer></script>
+</body>
+</html>

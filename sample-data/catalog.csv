@@ -1,0 +1,11 @@
+id,name,description,price,image_url,product_url,category,stock
+sku-001,Trailblaze Running Shoe,"Lightweight breathable running shoe with cushioned sole, ideal for daily jogging and long runs",2799,https://picsum.photos/seed/sku001/400,https://demo-store.example/p/sku-001,footwear,24
+sku-002,Cloudstep Walking Shoe,"All-day comfort walking shoe with wide toe box and memory-foam insole",2299,https://picsum.photos/seed/sku002/400,https://demo-store.example/p/sku-002,footwear,12
+sku-003,Grip Trail Runner,"Rugged off-road trail shoe with aggressive grip for wet and rocky terrain",3499,https://picsum.photos/seed/sku003/400,https://demo-store.example/p/sku-003,footwear,7
+sku-004,Featherlite Sneaker,"Minimalist everyday sneaker under 3k, breathable knit upper",1999,https://picsum.photos/seed/sku004/400,https://demo-store.example/p/sku-004,footwear,40
+sku-005,Court Classic,"Retro low-top canvas shoe for casual daily wear",1799,https://picsum.photos/seed/sku005/400,https://demo-store.example/p/sku-005,footwear,18
+sku-006,Marathon Pro,"High-mileage road racing shoe with carbon plate for serious runners",6499,https://picsum.photos/seed/sku006/400,https://demo-store.example/p/sku-006,footwear,5
+sku-007,DryFit Running Tee,"Moisture-wicking short-sleeve running tee, quick-dry fabric",899,https://picsum.photos/seed/sku007/400,https://demo-store.example/p/sku-007,apparel,60
+sku-008,Compression Socks,"Ankle-support compression socks for jogging and recovery",499,https://picsum.photos/seed/sku008/400,https://demo-store.example/p/sku-008,accessories,80
+sku-009,Wide-Fit Comfort Shoe,"Extra-wide daily shoe designed for wide feet and all-day standing",2599,https://picsum.photos/seed/sku009/400,https://demo-store.example/p/sku-009,footwear,15
+sku-010,Kids Sprint Shoe,"Durable lightweight running shoe for kids with velcro strap",1499,https://picsum.photos/seed/sku010/400,https://demo-store.example/p/sku-010,footwear,30

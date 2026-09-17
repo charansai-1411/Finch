@@ -1,0 +1,186 @@
+AWSTemplateFormatVersion: '2010-09-09'
+Transform: AWS::Serverless-2016-10-31
+Description: >
+  Finch — an AI salesperson for any store. Serverless backend:
+  API Gateway (HTTP) + Lambda + DynamoDB + S3 + Bedrock. Scales to zero.
+
+Parameters:
+  WidgetCdn:
+    Type: String
+    Default: https://cdn.finch.app/v.js
+    Description: Public URL where v.js is hosted (CloudFront/S3).
+  ChatModelId:
+    Type: String
+    Default: anthropic.claude-3-5-haiku-20241022-v1:0
+  EmbedModelId:
+    Type: String
+    Default: amazon.titan-embed-text-v2:0
+
+Globals:
+  Function:
+    Runtime: python3.12
+    Architectures: [arm64]
+    Timeout: 30
+    MemorySize: 512
+    CodeUri: ../backend/
+    Environment:
+      Variables:
+        FINCH_BACKEND: aws
+        TENANTS_TABLE: !Ref TenantsTable
+        PRODUCTS_TABLE: !Ref ProductsTable
+        CARTS_TABLE: !Ref CartsTable
+        CATALOG_BUCKET: !Ref CatalogBucket
+        CHAT_MODEL_ID: !Ref ChatModelId
+        EMBED_MODEL_ID: !Ref EmbedModelId
+        WIDGET_CDN: !Ref WidgetCdn
+
+Resources:
+  # ---------------- HTTP API ----------------
+  FinchApi:
+    Type: AWS::Serverless::HttpApi
+    Properties:
+      CorsConfiguration:
+        AllowOrigins: ['*']            # embed key is publishable; tighten to domain_allowlist post-MVP
+        AllowMethods: [GET, POST, OPTIONS]
+        AllowHeaders: [Content-Type]
+
+  # ---------------- Lambdas ----------------
+  IngestFn:
+    Type: AWS::Serverless::Function
+    Properties:
+      Handler: src.handlers.ingest.handler
+      Policies:
+        - DynamoDBCrudPolicy: { TableName: !Ref TenantsTable }
+        - DynamoDBCrudPolicy: { TableName: !Ref ProductsTable }
+        - S3CrudPolicy: { BucketName: !Ref CatalogBucket }
+        - Statement:
+            - Effect: Allow
+              Action: [bedrock:InvokeModel]
+              Resource: !Sub arn:aws:bedrock:${AWS::Region}::foundation-model/*
+      Events:
+        Ingest:
+          Type: HttpApi
+          Properties:
+            ApiId: !Ref FinchApi
+            Path: /ingest
+            Method: POST
+
+  ChatFn:
+    Type: AWS::Serverless::Function
+    Properties:
+      Handler: src.handlers.chat.handler
+      Policies:
+        - DynamoDBReadPolicy: { TableName: !Ref TenantsTable }
+        - DynamoDBReadPolicy: { TableName: !Ref ProductsTable }
+        - DynamoDBCrudPolicy: { TableName: !Ref CartsTable }
+        - Statement:
+            - Effect: Allow
+              Action: [bedrock:InvokeModel, bedrock:InvokeModelWithResponseStream]
+              Resource: !Sub arn:aws:bedrock:${AWS::Region}::foundation-model/*
+      Events:
+        Chat:
+          Type: HttpApi
+          Properties:
+            ApiId: !Ref FinchApi
+            Path: /chat
+            Method: POST
+
+  SnippetFn:
+    Type: AWS::Serverless::Function
+    Properties:
+      Handler: src.handlers.snippet.handler
+      Policies:
+        - DynamoDBReadPolicy: { TableName: !Ref TenantsTable }
+      Events:
+        Snippet:
+          Type: HttpApi
+          Properties:
+            ApiId: !Ref FinchApi
+            Path: /snippet/{tenant_id}
+            Method: GET
+
+  CartGetFn:
+    Type: AWS::Serverless::Function
+    Properties:
+      Handler: src.handlers.cart.get_handler
+      Policies:
+        - DynamoDBReadPolicy: { TableName: !Ref CartsTable }
+      Events:
+        CartGet:
+          Type: HttpApi
+          Properties:
+            ApiId: !Ref FinchApi
+            Path: /cart/{session_id}
+            Method: GET
+
+  CartAddFn:
+    Type: AWS::Serverless::Function
+    Properties:
+      Handler: src.handlers.cart.add_handler
+      Policies:
+        - DynamoDBReadPolicy: { TableName: !Ref TenantsTable }
+        - DynamoDBReadPolicy: { TableName: !Ref ProductsTable }
+        - DynamoDBCrudPolicy: { TableName: !Ref CartsTable }
+      Events:
+        CartAdd:
+          Type: HttpApi
+          Properties:
+            ApiId: !Ref FinchApi
+            Path: /cart/{session_id}/add
+            Method: POST
+
+  # ---------------- DynamoDB ----------------
+  TenantsTable:
+    Type: AWS::DynamoDB::Table
+    Properties:
+      BillingMode: PAY_PER_REQUEST          # scales to zero
+      AttributeDefinitions:
+        - { AttributeName: tenant_id, AttributeType: S }
+        - { AttributeName: embed_key, AttributeType: S }
+      KeySchema:
+        - { AttributeName: tenant_id, KeyType: HASH }
+      GlobalSecondaryIndexes:
+        - IndexName: embed_key-index         # resolve widget key -> tenant
+          KeySchema:
+            - { AttributeName: embed_key, KeyType: HASH }
+          Projection: { ProjectionType: ALL }
+
+  ProductsTable:
+    Type: AWS::DynamoDB::Table
+    Properties:
+      BillingMode: PAY_PER_REQUEST
+      AttributeDefinitions:
+        - { AttributeName: tenant_id, AttributeType: S }
+        - { AttributeName: product_id, AttributeType: S }
+      KeySchema:
+        - { AttributeName: tenant_id, KeyType: HASH }
+        - { AttributeName: product_id, KeyType: RANGE }
+
+  CartsTable:
+    Type: AWS::DynamoDB::Table
+    Properties:
+      BillingMode: PAY_PER_REQUEST
+      AttributeDefinitions:
+        - { AttributeName: session_id, AttributeType: S }
+      KeySchema:
+        - { AttributeName: session_id, KeyType: HASH }
+      TimeToLiveSpecification:
+        AttributeName: ttl
+        Enabled: true
+
+  # ---------------- S3 (raw per-tenant catalog) ----------------
+  CatalogBucket:
+    Type: AWS::S3::Bucket
+    Properties:
+      PublicAccessBlockConfiguration:
+        BlockPublicAcls: true
+        BlockPublicPolicy: true
+        IgnorePublicAcls: true
+        RestrictPublicBuckets: true
+
+Outputs:
+  ApiUrl:
+    Description: Base URL of the Finch API — set this as FINCH_ENDPOINT in the widget.
+    Value: !Sub https://${FinchApi}.execute-api.${AWS::Region}.amazonaws.com
+  CatalogBucketName:
+    Value: !Ref CatalogBucket
