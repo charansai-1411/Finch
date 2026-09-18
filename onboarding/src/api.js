@@ -24,6 +24,7 @@ export async function ingest({ businessName, source, productCount }) {
 }
 
 // GET /snippet/:tenant_id -> the embeddable line
+const WIDGET_CDN = 'https://finch-widget-938358604976.s3.ap-south-1.amazonaws.com/v.js'
 export function snippetFor(embedKey) {
-  return `<script src="https://cdn.finch.app/v.js?key=${embedKey}" defer></script>`
+  return `<script src="${WIDGET_CDN}?key=${embedKey}" defer></script>`
 }

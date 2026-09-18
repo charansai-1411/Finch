@@ -111,15 +111,20 @@ def chat_turn(key: str, session_id: str, message: str):
         return {"error": "invalid_key"}
     tid = tenant["tenant_id"]
 
-    # ======================= Component 4 seam =============================
-    # Today: retrieve + a templated reply. The agent (Strands + Bedrock) will
-    # replace this block with real reasoning + tool calls (search_products,
-    # check_stock, add_to_cart...) while keeping the same response shape.
+    # Component 4: the real conversational agent (LLM tool use — Groq/Bedrock).
+    if config.AGENT == "on":
+        from src.agent import agent
+        if agent.ready():
+            try:
+                return agent.run(tenant, session_id, message)
+            except Exception:  # noqa: BLE001 — never break search if the LLM hiccups
+                pass
+
+    # Fallback (agent off): retrieve + a templated reply — no Bedrock chat cost.
     filters = _parse_filters(message)
     products = search_products(tid, message, k=config.TOP_K, filters=filters)
     reply = _templated_reply(products, tenant.get("business_name"))
     return {"reply": reply, "products": products, "suggestions": _suggestions(products)}
-    # =====================================================================
 
 
 # ---- helpers -------------------------------------------------------------

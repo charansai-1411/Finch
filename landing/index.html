@@ -242,7 +242,7 @@
         <a href="#how">How it works</a>
         <a href="#features">Features</a>
         <a href="#faq">FAQ</a>
-        <a href="#get" class="btn btn-primary">Add to your store</a>
+        <a href="#get" data-cta="app" class="btn btn-primary">Add to your store</a>
       </nav>
     </div>
   </header>
@@ -255,10 +255,10 @@
         <h1 class="r">No devs. No weeks.<br><span class="accent">No $1,000 bill.</span></h1>
         <p class="lede r">Finch is one AI worker that adapts to any store. Connect your catalog, paste one line, go live — a salesperson that already knows every product you sell.</p>
         <div class="cta r">
-          <a href="#get" class="btn btn-primary">Add Finch — free
+          <a href="#get" data-cta="app" class="btn btn-primary">Add Finch — free
             <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M13 6l6 6-6 6"/></svg>
           </a>
-          <a href="#how" class="btn btn-ghost">
+          <a href="#how" data-cta="demo" class="btn btn-ghost">
             <svg width="15" height="15" viewBox="0 0 24 24" fill="currentColor"><path d="M8 5v14l11-7z"/></svg>
             Watch 90s demo
           </a>
@@ -455,7 +455,7 @@
         <h2>Give your store a salesperson today.</h2>
         <p>Connect your catalog, paste one line, go live. No devs, no weeks, no $1,000 bill.</p>
         <div class="cta">
-          <a href="#" class="btn btn-dark">Add Finch — free
+          <a href="#" data-cta="app" class="btn btn-dark">Add Finch — free
             <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M13 6l6 6-6 6"/></svg>
           </a>
           <a href="#how" class="btn btn-light">See the 3 steps</a>
@@ -472,7 +472,7 @@
         <a href="#how">How it works</a>
         <a href="#features">Features</a>
         <a href="#faq">FAQ</a>
-        <a href="#get">Get started</a>
+        <a href="#get" data-cta="app">Get started</a>
       </div>
       <div>Different beak, same bird. © 2026 Finch.</div>
     </div>
@@ -518,6 +518,18 @@
   </svg>
 
   <script>
+    // ---- CTA targets -------------------------------------------------------
+    // "Add Finch" buttons -> onboarding dashboard; demo button -> widget store.
+    // In dev these are the local servers; in production set them to your
+    // deployed URLs (e.g. https://app.finch.app and the demo store).
+    (function () {
+      var local = /^(localhost|127\.0\.0\.1)$/.test(location.hostname);
+      var DASHBOARD_URL = local ? 'http://localhost:5173' : '/app';
+      var DEMO_URL = local ? 'http://localhost:5600/demo/' : '/demo';
+      document.querySelectorAll('[data-cta="app"]').forEach(function (a) { a.href = DASHBOARD_URL; });
+      document.querySelectorAll('[data-cta="demo"]').forEach(function (a) { a.href = DEMO_URL; });
+    })();
+
     // header border on scroll
     (function () {
       var h = document.getElementById('hdr');

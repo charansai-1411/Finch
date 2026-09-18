@@ -16,7 +16,14 @@ _word = re.compile(r"[a-z0-9]+")
 
 
 def _tokens(text: str):
-    return [w for w in _word.findall((text or "").lower()) if len(w) > 2]
+    out = []
+    for w in _word.findall((text or "").lower()):
+        if len(w) <= 2:
+            continue
+        if len(w) > 3 and w.endswith("s"):
+            w = w[:-1]  # crude plural stemming so "hoodies" matches "hoodie"
+        out.append(w)
+    return out
 
 
 def _local_embed(text: str):
@@ -41,7 +48,7 @@ def _bedrock_embed(text: str):
 
 
 def embed(text: str):
-    return _bedrock_embed(text) if config.BACKEND == "aws" else _local_embed(text)
+    return _bedrock_embed(text) if config.EMBED_PROVIDER == "bedrock" else _local_embed(text)
 
 
 def embed_product(product: dict):

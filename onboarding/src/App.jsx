@@ -1,62 +1,49 @@
-import { useState } from 'react'
-import { AnimatePresence, motion } from 'framer-motion'
-import FinchGlyph from './finchGlyph.jsx'
-import Stepper from './components/Stepper.jsx'
-import ConnectStep from './components/ConnectStep.jsx'
-import IndexingStep from './components/IndexingStep.jsx'
-import LiveStep from './components/LiveStep.jsx'
+import { useEffect, useState } from 'react'
+import Sidebar from './components/Sidebar.jsx'
+import HomeView from './components/HomeView.jsx'
+import BusinessBrainView from './components/BusinessBrainView.jsx'
+import MonitorView from './components/MonitorView.jsx'
+import AgentBuilder from './components/AgentBuilder.jsx'
 
-const STEPS = ['Connect', 'Index', 'Go live']
-
-// Apple-style, critically damped — no overshoot on an occasional transition.
-const spring = { type: 'spring', bounce: 0, duration: 0.4 }
-const variants = {
-  enter: { opacity: 0, y: 14 },
-  center: { opacity: 1, y: 0 },
-  exit: { opacity: 0, y: -14 },
-}
+const LS_KEY = 'finch_active_shopping'
+const loadActive = () => { try { return JSON.parse(localStorage.getItem(LS_KEY)) } catch { return null } }
 
 export default function App() {
-  const [step, setStep] = useState(0) // 0 connect, 1 indexing, 2 live
-  const [tenant, setTenant] = useState(null) // { tenantId, embedKey, productCount, businessName }
-  const [pending, setPending] = useState(null) // result waiting for the indexing animation
+  const [view, setView] = useState('home')            // home | brain | monitor
+  const [setup, setSetup] = useState(false)            // shopping-agent setup flow open?
+  const [activeShopping, setActiveShopping] = useState(loadActive)
+
+  useEffect(() => {
+    try {
+      if (activeShopping) localStorage.setItem(LS_KEY, JSON.stringify(activeShopping))
+      else localStorage.removeItem(LS_KEY)
+    } catch { /* ignore */ }
+  }, [activeShopping])
+
+  const nav = (v) => { setSetup(false); setView(v) }
+  const openSetup = (id) => { if (id === 'shopping') setSetup(true) }
 
   return (
-    <div className="app">
-      <header className="topbar">
-        <div className="brand">
-          <span className="mark"><FinchGlyph /></span> Finch
-        </div>
-        <a className="help" href="#" onClick={(e) => e.preventDefault()}>Need help?</a>
-      </header>
-
-      <main className="main">
-        <div className="wizard">
-          <Stepper steps={STEPS} current={step} />
-          <AnimatePresence mode="wait" initial={false}>
-            <motion.div
-              key={step}
-              variants={variants}
-              initial="enter" animate="center" exit="exit"
-              transition={spring}
-            >
-              {step === 0 && (
-                <ConnectStep
-                  onDone={(result) => { setPending(result); setStep(1) }}
-                />
-              )}
-              {step === 1 && (
-                <IndexingStep
-                  result={pending}
-                  onDone={() => { setTenant(pending); setStep(2) }}
-                />
-              )}
-              {step === 2 && <LiveStep tenant={tenant} />}
-            </motion.div>
-          </AnimatePresence>
+    <div className="shell">
+      <Sidebar view={view} onNav={nav} />
+      <main className="content">
+        <div className="page">
+          {setup ? (
+            <AgentBuilder
+              existing={activeShopping}
+              onBack={() => setSetup(false)}
+              onActivated={(tenant) => setActiveShopping(tenant)}
+              onClose={() => { setSetup(false); setView('monitor') }}
+            />
+          ) : view === 'home' ? (
+            <HomeView activeShopping={activeShopping} onSetup={openSetup} />
+          ) : view === 'brain' ? (
+            <BusinessBrainView />
+          ) : (
+            <MonitorView activeShopping={activeShopping} onManage={() => setSetup(true)} onGoHome={() => setView('home')} />
+          )}
         </div>
       </main>
-
       <span className="mock-tag">● Demo mode — mock API (no AWS yet)</span>
     </div>
   )
