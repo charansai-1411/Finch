@@ -8,7 +8,7 @@ import re
 import time
 
 from src import config
-from src.lib import catalog, embeddings, ids, objectstore, store, vectors
+from src.lib import catalog, docs, embeddings, ids, objectstore, store, vectors
 
 
 # ---- ingestion -----------------------------------------------------------
@@ -42,6 +42,41 @@ def ingest(business_name: str, source: str, payload: str, domain_allowlist=None)
     return {"tenant_id": tid, "embed_key": key, "product_count": len(products)}
 
 
+# ---- support-agent ingestion (docs -> chunks) ----------------------------
+def ingest_docs(business_name: str, docs_in: list, domain_allowlist=None):
+    """Chunk + embed uploaded help docs, store them, register a support tenant.
+
+    docs_in: [{name, text}] and/or [{name, source:'url', payload}].
+    Returns {tenant_id, embed_key, doc_count, chunk_count}.
+    """
+    chunks = docs.normalize_docs(docs_in)
+    if not chunks:
+        raise ValueError("No readable text found in the uploaded documents.")
+
+    tid = ids.tenant_id()
+    key = ids.embed_key()
+    for c in chunks:
+        c["tenant_id"] = tid
+        c["embedding"] = embeddings.embed(c["text"])
+    store.put_documents(tid, chunks)
+
+    doc_names = sorted({c["doc_name"] for c in chunks})
+    tenant = {
+        "tenant_id": tid,
+        "business_name": business_name,
+        "agent_type": "support",
+        "embed_key": key,
+        "doc_count": len(doc_names),
+        "doc_names": doc_names,
+        "chunk_count": len(chunks),
+        "domain_allowlist": domain_allowlist or [],
+        "created_at": int(time.time()),
+    }
+    store.put_tenant(tenant)
+    return {"tenant_id": tid, "embed_key": key,
+            "doc_count": len(doc_names), "chunk_count": len(chunks)}
+
+
 # ---- tenants / snippet ---------------------------------------------------
 def resolve_by_key(embed_key: str):
     return store.get_tenant_by_key(embed_key)
@@ -51,10 +86,12 @@ def snippet_for_tenant(tenant_id: str):
     t = store.get_tenant(tenant_id)
     if not t:
         return None
+    cdn = config.SUPPORT_WIDGET_CDN if t.get("agent_type") == "support" else config.WIDGET_CDN
     return {
         "tenant_id": tenant_id,
         "embed_key": t["embed_key"],
-        "snippet": f'<script src="{config.WIDGET_CDN}?key={t["embed_key"]}" defer></script>',
+        "agent_type": t.get("agent_type", "shopping"),
+        "snippet": f'<script src="{cdn}?key={t["embed_key"]}" defer></script>',
     }
 
 
@@ -125,6 +162,80 @@ def chat_turn(key: str, session_id: str, message: str):
     products = search_products(tid, message, k=config.TOP_K, filters=filters)
     reply = _templated_reply(products, tenant.get("business_name"))
     return {"reply": reply, "products": products, "suggestions": _suggestions(products)}
+
+
+# ---- support agent: retrieval + grounded answer --------------------------
+def search_docs(tenant_id: str, query: str, k: int = None):
+    """Embed the question, cosine-rank the tenant's document chunks."""
+    k = k or config.TOP_K_DOCS
+    qvec = embeddings.embed(query)
+    chunks = store.list_documents(tenant_id)
+    return vectors.top_k(qvec, chunks, k=k)
+
+
+def answer_question(key: str, session_id: str, message: str):
+    """Support turn: retrieve doc passages, answer grounded in them, cite sources."""
+    tenant = resolve_by_key(key)
+    if not tenant:
+        return {"error": "invalid_key"}
+    tid = tenant["tenant_id"]
+    business = tenant.get("business_name") or "the store"
+
+    hits = search_docs(tid, message, k=config.TOP_K_DOCS)
+    sources = _sources(hits)
+
+    if not hits:
+        return {
+            "reply": f"I couldn't find anything about that in {business}'s help material. "
+                     "Could you rephrase, or reach out to the team directly?",
+            "sources": [], "suggestions": _doc_suggestions(tid),
+        }
+
+    # Grounded LLM answer when a provider is configured; otherwise extractive.
+    if config.AGENT == "on":
+        try:
+            from src.agent import support as support_agent
+            if support_agent.ready():
+                reply = support_agent.answer(message, hits, business)
+                if reply:
+                    return {"reply": reply, "sources": sources,
+                            "suggestions": _doc_suggestions(tid)}
+        except Exception:  # noqa: BLE001 — never fail the answer on an LLM hiccup
+            pass
+
+    return {"reply": _extractive_answer(hits, business), "sources": sources,
+            "suggestions": _doc_suggestions(tid)}
+
+
+def _sources(hits: list) -> list:
+    """Compact citation cards: which doc + a short snippet, best first."""
+    out, seen = [], set()
+    for h in hits:
+        name = h.get("doc_name", "document")
+        snippet = " ".join((h.get("text") or "").split())[:180]
+        keyid = (name, snippet[:40])
+        if keyid in seen:
+            continue
+        seen.add(keyid)
+        out.append({"doc_name": name, "snippet": snippet,
+                    "score": round(float(h.get("_score", 0)), 3)})
+    return out
+
+
+def _extractive_answer(hits: list, business: str) -> str:
+    """No-LLM fallback: lead with the most relevant passage, honest about source."""
+    top = hits[0]
+    text = " ".join((top.get("text") or "").split())
+    if len(text) > 480:
+        cut = text.rfind(". ", 0, 480)
+        text = text[: (cut + 1) if cut > 200 else 480].rstrip() + " …"
+    return (f"Here's what {business}'s docs say — from “{top.get('doc_name', 'the docs')}”:\n\n"
+            f"{text}")
+
+
+def _doc_suggestions(tenant_id: str) -> list:
+    """Offer a couple of concrete follow-ups drawn from the tenant's doc names."""
+    return ["What's your return policy?", "How long does shipping take?", "How do I contact support?"]
 
 
 # ---- helpers -------------------------------------------------------------

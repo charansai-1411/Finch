@@ -312,6 +312,19 @@ button { font-family: inherit; }
 .conn-connected { margin-left: auto; display: inline-flex; align-items: center; gap: 5px; font-size: 0.78rem; font-weight: 700; color: var(--green); }
 .conn-form { margin-top: 0.9rem; padding-top: 0.9rem; border-top: 1px dashed var(--hair); }
 
+/* uploaded-docs list (Support agent) */
+.doclist { margin-top: 0.8rem; display: flex; flex-direction: column; gap: 0.5rem; }
+.docrow { display: flex; align-items: center; gap: 0.7rem; padding: 0.55rem 0.7rem; border: 1px solid var(--hair); border-radius: 11px; background: var(--card); }
+.docrow.err { border-color: color-mix(in srgb, #C6503A 40%, var(--hair)); background: color-mix(in srgb, #C6503A 6%, var(--card)); }
+.docrow .dic { width: 30px; height: 30px; border-radius: 8px; flex: none; display: grid; place-items: center; background: color-mix(in srgb, var(--gold) 16%, transparent); color: var(--gold-deep); }
+.docrow.err .dic { background: color-mix(in srgb, #C6503A 16%, transparent); color: #C6503A; }
+.docrow .dic svg { width: 16px; height: 16px; }
+.docrow .dn { font-size: 0.88rem; font-weight: 700; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.docrow .dm { font-size: 0.76rem; color: var(--muted); }
+.docrow .drm { flex: none; background: none; border: none; color: var(--muted); cursor: pointer; padding: 4px; border-radius: 7px; display: grid; place-items: center; transition: color 140ms ease, background 140ms ease; }
+.docrow .drm svg { width: 15px; height: 15px; }
+.docrow .drm:hover { color: #C6503A; background: color-mix(in srgb, #C6503A 10%, transparent); }
+
 /* deploy panel */
 .deploy-panel { position: sticky; top: 1rem; background: var(--card); border: 1px solid var(--card-brd); border-radius: 18px; padding: 1.3rem; box-shadow: var(--shadow); }
 .deploy-panel h3 { margin: 0 0 0.2rem; font-size: 1.08rem; letter-spacing: -0.01em; }

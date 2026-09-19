@@ -5,5 +5,9 @@ boto3>=1.34.0
 fastapi>=0.110.0
 uvicorn[standard]>=0.29.0
 
+# Support agent — optional server-side PDF text extraction. The browser demo
+# extracts PDF text client-side (pdf.js), so this is only for the API/Lambda path.
+pypdf>=4.2.0
+
 # Agent (Component 4, later):
 # strands-agents>=0.1.0

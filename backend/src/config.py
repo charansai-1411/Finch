@@ -38,6 +38,7 @@ GROQ_MODEL = os.environ.get("GROQ_MODEL", "llama-3.3-70b-versatile")
 TENANTS_TABLE = os.environ.get("TENANTS_TABLE", "finch-tenants")
 PRODUCTS_TABLE = os.environ.get("PRODUCTS_TABLE", "finch-products")
 CARTS_TABLE = os.environ.get("CARTS_TABLE", "finch-carts")
+DOCS_TABLE = os.environ.get("DOCS_TABLE", "finch-documents")
 CATALOG_BUCKET = os.environ.get("CATALOG_BUCKET", "finch-catalogs")
 
 # Local backend
@@ -49,9 +50,16 @@ LOCAL_EMBED_DIM = 256
 
 # Widget
 WIDGET_CDN = os.environ.get("WIDGET_CDN", "https://finch-widget-938358604976.s3.ap-south-1.amazonaws.com/v.js")
+# Support-agent widget (chat bubble). Same bucket, different file.
+SUPPORT_WIDGET_CDN = os.environ.get(
+    "SUPPORT_WIDGET_CDN",
+    "https://finch-widget-938358604976.s3.ap-south-1.amazonaws.com/support.js",
+)
 
 # Retrieval
 TOP_K = int(os.environ.get("TOP_K", "3"))
+# How many document passages the support agent grounds each answer in.
+TOP_K_DOCS = int(os.environ.get("TOP_K_DOCS", "4"))
 
 # Cart TTL (seconds) — 7 days
 CART_TTL_SECONDS = int(os.environ.get("CART_TTL_SECONDS", str(7 * 24 * 3600)))

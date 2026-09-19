@@ -18,6 +18,24 @@ export const FLOW = [
   { key: 'cart', name: 'Add to cart', tool: 'add_to_cart', core: false },
 ];
 
+// ===== Support agent =====
+// Default system prompt for the Support Agent (editable in the builder).
+export const SUPPORT_PROMPT =
+`You are a friendly, honest customer-support assistant for this store.
+
+- Answer the customer's question using ONLY the store's uploaded docs (policies, FAQs, guides).
+- If the answer isn't in the docs, say you don't have that information and point them to a human — never guess.
+- Be concise (2–5 sentences), warm, and specific. Cite the document you used.`
+
+// The Support agent's flow. Retrieve + answer are core; citations are optional.
+export const SUPPORT_FLOW = [
+  { key: 'understand', name: 'Understand the question', tool: null, core: true },
+  { key: 'retrieve', name: 'Search your documents', tool: 'search_docs', core: true },
+  { key: 'ground', name: 'Answer only from the docs', tool: null, core: true },
+  { key: 'cite', name: 'Cite the source document', tool: 'cite_sources', core: false },
+  { key: 'handoff', name: 'Hand off when unsure', tool: null, core: true },
+]
+
 // Connectors. Catalog is required; the rest are teasers.
 export const CONNECTORS = [
   { id: 'shopify', name: 'Shopify', desc: 'Sync products & write to the real cart', icon: 'cart', status: 'soon' },
@@ -32,8 +50,8 @@ export const AGENTS = [
     desc: 'An AI salesperson that knows your catalog and recommends real products — with add-to-cart built in.',
   },
   {
-    id: 'support', name: 'Support Agent', tag: 'Support', icon: 'life', status: 'soon',
-    desc: 'Answers customer questions from your help docs, policies, and order data.',
+    id: 'support', name: 'Support Agent', tag: 'Support', icon: 'life', status: 'available',
+    desc: 'Answers customer questions from your help docs, policies, and PDFs — grounded, with citations.',
   },
   {
     id: 'lead', name: 'Lead Qualifier', tag: 'Sales', icon: 'user', status: 'soon',
