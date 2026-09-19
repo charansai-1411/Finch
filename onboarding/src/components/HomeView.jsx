@@ -3,7 +3,8 @@ import AgentCard from './AgentCard.jsx'
 import { AGENTS, USER_NAME } from '../data.js'
 import { Spark, Send, Mic } from '../icons.jsx'
 
-export default function HomeView({ activeShopping, onSetup }) {
+export default function HomeView({ activeShopping, activeSupport, onSetup }) {
+  const isActive = (id) => (id === 'shopping' && !!activeShopping) || (id === 'support' && !!activeSupport)
   const [text, setText] = useState('')
   const [noted, setNoted] = useState(false)
 
@@ -37,7 +38,7 @@ export default function HomeView({ activeShopping, onSetup }) {
       {noted ? (
         <div className="cb-note">
           <span style={{ color: 'var(--gold-deep)', flex: 'none' }}><Spark /></span>
-          <span>Building agents from a prompt is coming soon. For now, deploy one of the prebuilt agents below — the <b>Shopping Agent</b> is ready today.</span>
+          <span>Building agents from a prompt is coming soon. For now, deploy a prebuilt agent below — the <b>Shopping</b> and <b>Support</b> agents are ready today.</span>
         </div>
       ) : (
         <p className="cb-hint">Describe it and Finch will build it — or start from a prebuilt agent below.</p>
@@ -50,7 +51,7 @@ export default function HomeView({ activeShopping, onSetup }) {
       </div>
       <div className="agrid">
         {AGENTS.map((a) => (
-          <AgentCard key={a.id} agent={a} active={a.id === 'shopping' && !!activeShopping} onSetup={onSetup} />
+          <AgentCard key={a.id} agent={a} active={isActive(a.id)} onSetup={onSetup} />
         ))}
       </div>
     </div>

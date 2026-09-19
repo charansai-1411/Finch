@@ -17,6 +17,7 @@ _ddb = boto3.resource("dynamodb", region_name=config.AWS_REGION)
 _tenants = _ddb.Table(config.TENANTS_TABLE)
 _products = _ddb.Table(config.PRODUCTS_TABLE)
 _carts = _ddb.Table(config.CARTS_TABLE)
+_documents = _ddb.Table(config.DOCS_TABLE)
 
 
 # ---- Tenants -------------------------------------------------------------
@@ -52,6 +53,18 @@ def list_products(tenant_id: str):
 
 def get_product(tenant_id: str, product_id: str):
     return _dec(_products.get_item(Key={"tenant_id": tenant_id, "product_id": product_id}).get("Item"))
+
+
+# ---- Documents (Support agent) ------------------------------------------
+def put_documents(tenant_id: str, chunks: list):
+    with _documents.batch_writer() as batch:
+        for c in chunks:
+            batch.put_item(Item=_enc({**c, "tenant_id": tenant_id}))
+
+
+def list_documents(tenant_id: str):
+    resp = _documents.query(KeyConditionExpression=Key("tenant_id").eq(tenant_id))
+    return [_dec(i) for i in resp.get("Items", [])]
 
 
 # ---- Carts ---------------------------------------------------------------

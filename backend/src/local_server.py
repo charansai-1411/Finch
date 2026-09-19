@@ -44,6 +44,40 @@ def snippet(tenant_id: str):
     return result
 
 
+# ---- Support agent: doc-grounded Q&A ------------------------------------
+@app.post("/support/ingest")
+async def support_ingest(req: Request):
+    b = await req.json()
+    docs_in = b.get("docs")
+    # convenience: a single {text}/{source,payload} also accepted
+    if not docs_in:
+        if b.get("payload") and b.get("source") == "url":
+            docs_in = [{"name": b.get("name", b["payload"]), "source": "url", "payload": b["payload"]}]
+        elif b.get("text"):
+            docs_in = [{"name": b.get("name", "document"), "text": b["text"]}]
+    if not docs_in:
+        return JSONResponse({"error": "provide docs: [{name, text}] or a url"}, status_code=400)
+    try:
+        return service.ingest_docs(
+            business_name=b.get("business_name", "My store"),
+            docs_in=docs_in,
+            domain_allowlist=b.get("domain_allowlist"),
+        )
+    except Exception as e:  # noqa: BLE001
+        return JSONResponse({"error": str(e)}, status_code=400)
+
+
+@app.post("/support/chat")
+async def support_chat(req: Request):
+    b = await req.json()
+    if not b.get("key") or not b.get("session_id"):
+        return JSONResponse({"error": "key and session_id required"}, status_code=400)
+    result = service.answer_question(b["key"], b["session_id"], b.get("message", ""))
+    if result.get("error"):
+        return JSONResponse(result, status_code=403)
+    return result
+
+
 @app.post("/chat")
 async def chat(req: Request):
     b = await req.json()

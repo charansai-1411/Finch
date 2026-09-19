@@ -16,5 +16,7 @@ get_tenant_by_key = _b.get_tenant_by_key
 put_products = _b.put_products
 list_products = _b.list_products
 get_product = _b.get_product
+put_documents = _b.put_documents
+list_documents = _b.list_documents
 get_cart = _b.get_cart
 save_cart = _b.save_cart

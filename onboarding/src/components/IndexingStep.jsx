@@ -7,8 +7,8 @@ const PHASES = [
   { key: 'build', label: 'Building your agent' },
 ]
 
-export default function IndexingStep({ result, onDone }) {
-  const total = result?.productCount || 300
+export default function IndexingStep({ result, onDone, phases = PHASES, unit = 'products', total: totalProp }) {
+  const total = totalProp ?? result?.productCount ?? 300
   const [phase, setPhase] = useState(0)
   const [pct, setPct] = useState(6)
   const [count, setCount] = useState(0)
@@ -24,6 +24,7 @@ export default function IndexingStep({ result, onDone }) {
       setPct(6 + eased * 94)
       setCount(Math.round(eased * total))
       setPhase(t < 0.4 ? 0 : t < 0.8 ? 1 : 2)
+      // (phase index maps into the provided `phases` array)
       if (t < 1) { raf = requestAnimationFrame(tick) }
       else if (!doneRef.current) { doneRef.current = true; setTimeout(onDone, 550) }
     }
@@ -37,11 +38,11 @@ export default function IndexingStep({ result, onDone }) {
       <div className="finch-load"><FinchGlyph /></div>
       <div className="progress"><div className="fill" style={{ width: pct + '%' }} /></div>
       <div className="phase">
-        <span className="count">{count.toLocaleString()}</span> of {total.toLocaleString()} products · {PHASES[phase].label}…
+        <span className="count">{count.toLocaleString()}</span> of {total.toLocaleString()} {unit} · {phases[phase].label}…
       </div>
 
       <div className="phaselist">
-        {PHASES.map((p, i) => {
+        {phases.map((p, i) => {
           const state = i < phase ? 'done' : i === phase ? 'active' : ''
           return (
             <div className={'row ' + state} key={p.key}>

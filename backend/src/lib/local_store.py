@@ -20,7 +20,7 @@ def _load():
         with open(_PATH, "r", encoding="utf-8") as f:
             return json.load(f)
     except (FileNotFoundError, json.JSONDecodeError):
-        return {"tenants": {}, "products": {}, "carts": {}}
+        return {"tenants": {}, "products": {}, "carts": {}, "documents": {}}
 
 
 def _save(db):
@@ -64,6 +64,18 @@ def list_products(tenant_id: str):
 
 def get_product(tenant_id: str, product_id: str):
     return _load()["products"].get(tenant_id, {}).get(product_id)
+
+
+# ---- Documents (Support agent) ------------------------------------------
+def put_documents(tenant_id: str, chunks: list):
+    with _lock:
+        db = _load()
+        db.setdefault("documents", {})[tenant_id] = chunks
+        _save(db)
+
+
+def list_documents(tenant_id: str):
+    return list(_load().get("documents", {}).get(tenant_id, []))
 
 
 # ---- Carts ---------------------------------------------------------------
