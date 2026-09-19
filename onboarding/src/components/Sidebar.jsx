@@ -8,10 +8,16 @@ const NAV = [
   { id: 'monitor', label: 'Monitor', Icon: Monitor },
 ]
 
+// Back to the marketing site (dev: local server; prod: site root).
+const LANDING_URL = /^(localhost|127\.0\.0\.1)$/.test(location.hostname)
+  ? 'http://localhost:5500' : '/'
+
 export default function Sidebar({ view, onNav }) {
   return (
     <aside className="sidebar">
-      <div className="side-brand"><span className="mark"><FinchGlyph /></span> Finch</div>
+      <a href={LANDING_URL} className="side-brand" style={{ textDecoration: 'none', color: 'inherit' }} title="Back to finch.app">
+        <span className="mark"><FinchGlyph /></span> Finch
+      </a>
       <div className="nav-sec">Workspace</div>
       <nav className="side-nav">
         {NAV.map(({ id, label, Icon }) => (
