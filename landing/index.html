@@ -705,8 +705,8 @@
       // The landing page and the onboarding app deploy as SEPARATE Amplify apps
       // (different domains), so once the onboarding app is live, set its URL here.
       // Leave blank for local dev (falls back to the localhost servers below).
-      var FINCH_APP_URL  = '';   // e.g. 'https://main.d1abc23.amplifyapp.com'
-      var FINCH_DEMO_URL = '';   // e.g. 'https://finch-widget-….s3.ap-south-1.amazonaws.com/demo/support.html'
+      var FINCH_APP_URL  = 'https://main.d3hnwgsalj9ele.amplifyapp.com';   // onboarding dashboard (Amplify)
+      var FINCH_DEMO_URL = 'https://main.d3hnwgsalj9ele.amplifyapp.com';   // point demo at the dashboard for now
       // ─────────────────────────────────────────────────────────────────────
       var local = /^(localhost|127\.0\.0\.1)$/.test(location.hostname);
       var DASHBOARD_URL = FINCH_APP_URL || (local ? 'http://localhost:5173' : '/app');
