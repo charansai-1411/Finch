@@ -64,6 +64,8 @@
     + '.fd-item .n{font-size:13.5px;font-weight:700;line-height:1.2}'
     + '.fd-item .d{font-size:12px;color:#6b6457;margin-top:1px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;max-width:230px}'
     + '.fd-item .p{margin-left:auto;font-size:13px;font-weight:800;color:#1c1813;flex:none}'
+    + '.fd-say{padding:9px 11px 5px;font-size:12.5px;line-height:1.45;color:#4a4636;font-weight:500;display:flex;gap:6px;align-items:flex-start}'
+    + '.fd-say .s{color:#E07C09;font-weight:800;flex:none}'
     + '.fd-empty{padding:26px 16px;text-align:center;color:#8a8578;font-size:13px}'
     + '.fd-foot{padding:7px 13px;border-top:1px solid rgba(20,20,30,.06);font-size:10.5px;color:#9a958a;display:flex;align-items:center;gap:4px}'
     + '.fd-foot b{color:#E07C09}'
@@ -110,12 +112,23 @@
     positionDrop(); drop.classList.add('on');
   }
 
-  function render(products, q) {
+  // The salesperson's opening line — first sentence of the agent's reply,
+  // markdown stripped, so the dropdown reads like guidance, not just results.
+  function lead(t) {
+    t = String(t == null ? '' : t).replace(/\*\*/g, '').replace(/\r/g, '');
+    var nl = t.indexOf('\n'); if (nl > 0) t = t.slice(0, nl);
+    t = t.trim();
+    if (t.length > 200) { var cut = t.lastIndexOf('. ', 200); t = cut > 60 ? t.slice(0, cut + 1) : t.slice(0, 200).trim() + '…'; }
+    return t;
+  }
+
+  function render(products, q, reply) {
     dq.textContent = q ? '· ' + q : '';
+    var say = reply ? '<div class="fd-say"><span class="s">✦</span><span>' + esc(lead(reply)) + '</span></div>' : '';
     if (!products || !products.length) {
-      results.innerHTML = '<div class="fd-empty">No matches for “' + esc(q) + '” yet.</div>';
+      results.innerHTML = say + '<div class="fd-empty">No matches for “' + esc(q) + '” yet.</div>';
     } else {
-      results.innerHTML = products.map(function (p) {
+      results.innerHTML = say + products.map(function (p) {
         var img = p.image_url ? '<img src="' + esc(p.image_url) + '" alt="" loading="lazy"/>' : '<div class="fd-item-noimg" style="width:46px;height:46px;border-radius:8px;background:#eee;flex:none"></div>';
         return '<a class="fd-item" href="' + esc(p.product_url || '#') + '">' + img
           + '<div><div class="n">' + esc(p.name) + '</div>' + (p.description ? '<div class="d">' + esc(p.description) + '</div>' : '') + '</div>'
@@ -140,7 +153,7 @@
       method: 'POST', headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ key: STORE_KEY, session_id: SESSION, message: q }),
     }).then(function (r) { return r.ok ? r.json() : null; })
-      .then(function (d) { if (my === seq) render((d && d.products) || [], q); })
+      .then(function (d) { if (my === seq) render((d && d.products) || [], q, d && d.reply); })
       .catch(function () { if (my === seq) results.innerHTML = '<div class="fd-empty">Search is unavailable right now.</div>'; });
   }
 
