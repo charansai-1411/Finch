@@ -701,9 +701,16 @@
 
     // ---- CTA targets -------------------------------------------------------
     (function () {
+      // ── Finch deploy config ──────────────────────────────────────────────
+      // The landing page and the onboarding app deploy as SEPARATE Amplify apps
+      // (different domains), so once the onboarding app is live, set its URL here.
+      // Leave blank for local dev (falls back to the localhost servers below).
+      var FINCH_APP_URL  = '';   // e.g. 'https://main.d1abc23.amplifyapp.com'
+      var FINCH_DEMO_URL = '';   // e.g. 'https://finch-widget-….s3.ap-south-1.amazonaws.com/demo/support.html'
+      // ─────────────────────────────────────────────────────────────────────
       var local = /^(localhost|127\.0\.0\.1)$/.test(location.hostname);
-      var DASHBOARD_URL = local ? 'http://localhost:5173' : '/app';
-      var DEMO_URL = local ? 'http://localhost:5600/demo/' : '/demo';
+      var DASHBOARD_URL = FINCH_APP_URL || (local ? 'http://localhost:5173' : '/app');
+      var DEMO_URL = FINCH_DEMO_URL || (local ? 'http://localhost:5600/demo/' : '/demo');
       document.querySelectorAll('[data-cta="app"]').forEach(function (a) { a.href = DASHBOARD_URL; });
       document.querySelectorAll('[data-cta="demo"]').forEach(function (a) { a.href = DEMO_URL; });
     })();

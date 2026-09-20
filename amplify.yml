@@ -1,0 +1,40 @@
+# AWS Amplify Hosting — monorepo build spec.
+# This repo hosts two frontends; each becomes its own Amplify app pointing at the
+# same GitHub repo, and Amplify picks the matching `appRoot` below.
+#
+#   onboarding/  -> the React/Vite dashboard (talks to the deployed backend)
+#   landing/     -> the static marketing page (no build)
+#
+# The onboarding build reads onboarding/.env.production for VITE_FINCH_API, so it
+# ships pointing at the live API. Override with an Amplify env var if the API moves.
+version: 1
+applications:
+  # ---- Onboarding dashboard (Vite) ----
+  - appRoot: onboarding
+    frontend:
+      phases:
+        preBuild:
+          commands:
+            - npm ci || npm install
+        build:
+          commands:
+            - npm run build
+      artifacts:
+        baseDirectory: dist
+        files:
+          - '**/*'
+      cache:
+        paths:
+          - node_modules/**/*
+
+  # ---- Landing page (static, no build) ----
+  - appRoot: landing
+    frontend:
+      phases:
+        build:
+          commands:
+            - echo "Static site — nothing to build"
+      artifacts:
+        baseDirectory: .
+        files:
+          - index.html

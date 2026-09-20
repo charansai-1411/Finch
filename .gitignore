@@ -30,6 +30,8 @@ backend/data/
 .env
 .env.*
 !.env.example
+# Public build-time config for hosting (no secrets — the API URL is public).
+!onboarding/.env.production
 *.pem
 
 # Amplify
