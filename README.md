@@ -15,6 +15,10 @@
 </p>
 
 <p align="center">
+  <img src="docs/hero.svg" alt="Finch — one line in, a salesperson out. Turn on a ready-made AI agent or build your own, connect your data (catalog, PDFs, docs), paste one script tag, and manage it from a dashboard. Shown: the AI search understanding 'something warm and cozy for winter' and recommending real products. 2 prebuilt agents, 1 line to integrate, $0 idle cost, Python 3.13 on AWS Lambda." width="960" />
+</p>
+
+<p align="center">
   <img src="https://img.shields.io/badge/Groq-openai/gpt--oss--120b-F55036?style=flat-square&logo=groq&logoColor=white" alt="Groq gpt-oss-120b" />
   <img src="https://img.shields.io/badge/AWS-Serverless-232F3E?style=flat-square&logo=amazonwebservices&logoColor=white" alt="AWS Serverless" />
   <img src="https://img.shields.io/badge/Lambda-Python_3.13-FF9900?style=flat-square&logo=awslambda&logoColor=white" alt="Lambda python3.13" />
