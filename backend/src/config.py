@@ -32,7 +32,7 @@ AGENT_PROVIDER = os.environ.get("FINCH_AGENT_PROVIDER", "groq").lower()  # groq 
 
 # Groq (OpenAI-compatible, fast, free tier — no account verification needed).
 GROQ_API_KEY = os.environ.get("GROQ_API_KEY", "")
-GROQ_MODEL = os.environ.get("GROQ_MODEL", "llama-3.3-70b-versatile")
+GROQ_MODEL = os.environ.get("GROQ_MODEL", "openai/gpt-oss-120b")
 
 # DynamoDB tables (aws backend)
 TENANTS_TABLE = os.environ.get("TENANTS_TABLE", "finch-tenants")
