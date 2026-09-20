@@ -31,13 +31,23 @@ The widget then POSTs to `/chat` for real instead of using the mock brain.
 Set the API base in the onboarding app (replace the mock in `onboarding/src/api.js`
 with `fetch(API_BASE + '/ingest')`), then deploy it to **Amplify Hosting**.
 
+## Point the Support agent's widget at it
+The Support agent uses its own widget, `widget/support.js` (a chat bubble). Host it
+on S3 + CloudFront alongside `v.js` and pass its URL as the `SupportWidgetCdn`
+parameter (default already points at the shared bucket). `support.js` reads the API
+origin from its `?api=` param, so a store's embed line is just:
+```html
+<script src="https://cdn.finch.app/support.js?key=STORE_KEY" defer></script>
+```
+
 ## What this stack creates
 | Resource | Purpose |
 |---|---|
-| HTTP API (API Gateway) | `/ingest`, `/chat`, `/snippet/{id}`, `/cart/{id}`, `/cart/{id}/add` |
-| 5 Lambda functions | ingest, chat, snippet, cart-get, cart-add |
-| DynamoDB `Tenants` (+ `embed_key-index` GSI) | tenant config, key → tenant lookup |
+| HTTP API (API Gateway) | `/ingest`, `/chat`, `/snippet/{id}`, `/cart/{id}`, `/cart/{id}/add`, `/support/ingest`, `/support/chat` |
+| 7 Lambda functions | ingest, chat, snippet, cart-get, cart-add, support-ingest, support-chat |
+| DynamoDB `Tenants` (+ `embed_key-index` GSI) | tenant config, key → tenant lookup (shopping **and** support) |
 | DynamoDB `Products` (tenant_id / product_id) | records **+ embedding** (discovery + truth) |
+| DynamoDB `Documents` (tenant_id / chunk_id) | support-agent doc passages **+ embedding** |
 | DynamoDB `Carts` (session_id, TTL) | per-shopper cart |
 | S3 catalog bucket | raw per-tenant catalog (`{tenant}/catalog.jsonl`) |
 | IAM roles | least-privilege DynamoDB/S3 + `bedrock:InvokeModel` |
@@ -54,3 +64,12 @@ curl -X POST $API/ingest -H 'content-type: application/json' \
 # → { tenant_id, embed_key, product_count }
 ```
 Then `POST $API/chat` with the returned `key`.
+
+For the **Support agent**:
+```bash
+curl -X POST $API/support/ingest -H 'content-type: application/json' \
+  -d '{"business_name":"Test","docs":[{"name":"Returns.txt","text":"You can return any unworn item within 30 days for a full refund."}]}'
+# → { tenant_id, embed_key, doc_count, chunk_count }
+```
+Then `POST $API/support/chat` with the returned `key` and a `message` — the answer
+is grounded in the uploaded docs and cites its source.
