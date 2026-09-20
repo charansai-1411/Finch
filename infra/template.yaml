@@ -26,11 +26,11 @@ Parameters:
     Description: Groq API key (gsk_...). The agent turns on automatically once this is set.
   GroqModel:
     Type: String
-    Default: llama-3.3-70b-versatile
+    Default: openai/gpt-oss-120b
 
 Globals:
   Function:
-    Runtime: python3.11
+    Runtime: python3.13
     Architectures: [x86_64]
     Timeout: 30
     MemorySize: 512
