@@ -1,0 +1,140 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1180 900" font-family="Segoe UI, Helvetica, Arial, sans-serif">
+  <defs>
+    <linearGradient id="gold" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#FFD470"/><stop offset="1" stop-color="#E0870A"/>
+    </linearGradient>
+    <marker id="ag" markerWidth="10" markerHeight="10" refX="7" refY="3" orient="auto">
+      <path d="M0,0 L7,3 L0,6 Z" fill="#F5B838"/>
+    </marker>
+    <marker id="ab" markerWidth="10" markerHeight="10" refX="7" refY="3" orient="auto">
+      <path d="M0,0 L7,3 L0,6 Z" fill="#6E8BFF"/>
+    </marker>
+    <marker id="an" markerWidth="10" markerHeight="10" refX="7" refY="3" orient="auto">
+      <path d="M0,0 L7,3 L0,6 Z" fill="#9E9A8E"/>
+    </marker>
+  </defs>
+
+  <!-- background -->
+  <rect width="1180" height="900" rx="18" fill="#0E0F13"/>
+  <rect x="1" y="1" width="1178" height="898" rx="17" fill="none" stroke="#26282F"/>
+
+  <!-- header -->
+  <circle cx="52" cy="50" r="17" fill="url(#gold)"/>
+  <text x="80" y="46" fill="#F4F1EA" font-size="24" font-weight="700">Finch — Architecture</text>
+  <text x="80" y="68" fill="#9E9A8E" font-size="13">One AI worker that adapts to any store · fully serverless on AWS · scales to zero</text>
+
+  <!-- legend -->
+  <line x1="820" y1="44" x2="860" y2="44" stroke="#F5B838" stroke-width="3" marker-end="url(#ag)"/>
+  <text x="868" y="48" fill="#9E9A8E" font-size="12">Setup (connect once)</text>
+  <line x1="820" y1="64" x2="860" y2="64" stroke="#6E8BFF" stroke-width="3" marker-end="url(#ab)"/>
+  <text x="868" y="68" fill="#9E9A8E" font-size="12">Runtime (every question)</text>
+
+  <!-- ===================== ROW 1 : actors ===================== -->
+  <!-- store owner -->
+  <rect x="60" y="100" width="250" height="66" rx="12" fill="#1A1D25" stroke="#3A3D46"/>
+  <text x="185" y="131" fill="#F4F1EA" font-size="15" font-weight="600" text-anchor="middle">Store owner</text>
+  <text x="185" y="150" fill="#9E9A8E" font-size="11.5" text-anchor="middle">connects catalog / docs, pastes 1 line</text>
+
+  <!-- shopper -->
+  <rect x="870" y="100" width="250" height="66" rx="12" fill="#1A1D25" stroke="#3A3D46"/>
+  <text x="995" y="131" fill="#F4F1EA" font-size="15" font-weight="600" text-anchor="middle">Shopper / customer</text>
+  <text x="995" y="150" fill="#9E9A8E" font-size="11.5" text-anchor="middle">asks in plain language on the store</text>
+
+  <!-- ===================== ROW 2 : frontend / edge ===================== -->
+  <text x="60" y="210" fill="#6E6B63" font-size="11" font-weight="700" letter-spacing="1">FRONTEND &amp; EDGE</text>
+  <!-- landing -->
+  <rect x="60" y="222" width="230" height="70" rx="12" fill="#16181D" stroke="#2C2F37"/>
+  <text x="175" y="251" fill="#F4F1EA" font-size="14" font-weight="600" text-anchor="middle">Landing page</text>
+  <text x="175" y="271" fill="#9E9A8E" font-size="11.5" text-anchor="middle">S3 (static)</text>
+  <!-- onboarding -->
+  <rect x="310" y="222" width="250" height="70" rx="12" fill="#16181D" stroke="#F5B838"/>
+  <text x="435" y="251" fill="#F4F1EA" font-size="14" font-weight="600" text-anchor="middle">Onboarding dashboard</text>
+  <text x="435" y="271" fill="#F5B838" font-size="11.5" text-anchor="middle">React / Vite · AWS Amplify</text>
+  <!-- store site + widget -->
+  <rect x="700" y="222" width="420" height="70" rx="12" fill="#16181D" stroke="#6E8BFF"/>
+  <text x="720" y="249" fill="#F4F1EA" font-size="14" font-weight="600">The store's own website</text>
+  <text x="720" y="269" fill="#9E9A8E" font-size="11.5">+ Finch widget (Shadow DOM):  v.js  ·  support.js  — from S3/CDN</text>
+
+  <!-- actor -> frontend arrows -->
+  <line x1="185" y1="166" x2="330" y2="220" stroke="#F5B838" stroke-width="2" marker-end="url(#ag)"/>
+  <line x1="290" y1="133" x2="700" y2="240" stroke="#F5B838" stroke-width="2" stroke-dasharray="5 4" marker-end="url(#ag)"/>
+  <text x="470" y="188" fill="#F5B838" font-size="11" transform="rotate(7 470 188)">paste 1 line</text>
+  <line x1="995" y1="166" x2="960" y2="220" stroke="#6E8BFF" stroke-width="2" marker-end="url(#ab)"/>
+
+  <!-- ===================== ROW 3 : API Gateway ===================== -->
+  <rect x="60" y="340" width="1060" height="58" rx="12" fill="#141821" stroke="#F5B838" stroke-opacity="0.5"/>
+  <text x="590" y="368" fill="#F4F1EA" font-size="15" font-weight="700" text-anchor="middle">Amazon API Gateway — HTTP API</text>
+  <text x="590" y="386" fill="#9E9A8E" font-size="11.5" text-anchor="middle">/ingest · /chat · /snippet · /cart · /support/ingest · /support/chat   (CORS *)</text>
+  <!-- frontend -> api -->
+  <line x1="435" y1="292" x2="435" y2="338" stroke="#F5B838" stroke-width="2" marker-end="url(#ag)"/>
+  <line x1="900" y1="292" x2="900" y2="338" stroke="#6E8BFF" stroke-width="2" marker-end="url(#ab)"/>
+
+  <!-- ===================== ROW 4 : Lambda ===================== -->
+  <rect x="60" y="440" width="1060" height="110" rx="14" fill="#12141A" stroke="#2C2F37"/>
+  <text x="80" y="465" fill="#6E6B63" font-size="11" font-weight="700" letter-spacing="1">AWS LAMBDA · PYTHON 3.13  (thin handlers → shared service layer)</text>
+  <!-- setup fns -->
+  <rect x="80" y="478" width="150" height="54" rx="9" fill="#1A1D25" stroke="#3A3D46"/>
+  <text x="155" y="502" fill="#F4F1EA" font-size="12.5" font-weight="600" text-anchor="middle">ingest</text>
+  <text x="155" y="519" fill="#9E9A8E" font-size="10.5" text-anchor="middle">catalog → embed</text>
+  <rect x="242" y="478" width="150" height="54" rx="9" fill="#1A1D25" stroke="#3A3D46"/>
+  <text x="317" y="502" fill="#F4F1EA" font-size="12.5" font-weight="600" text-anchor="middle">support-ingest</text>
+  <text x="317" y="519" fill="#9E9A8E" font-size="10.5" text-anchor="middle">docs → chunk → embed</text>
+  <rect x="404" y="478" width="120" height="54" rx="9" fill="#1A1D25" stroke="#3A3D46"/>
+  <text x="464" y="509" fill="#F4F1EA" font-size="12.5" font-weight="600" text-anchor="middle">snippet</text>
+  <!-- runtime fns -->
+  <rect x="600" y="478" width="150" height="54" rx="9" fill="#1A1D25" stroke="#4A5270"/>
+  <text x="675" y="502" fill="#F4F1EA" font-size="12.5" font-weight="600" text-anchor="middle">chat</text>
+  <text x="675" y="519" fill="#9E9A8E" font-size="10.5" text-anchor="middle">shopping agent</text>
+  <rect x="762" y="478" width="150" height="54" rx="9" fill="#1A1D25" stroke="#4A5270"/>
+  <text x="837" y="502" fill="#F4F1EA" font-size="12.5" font-weight="600" text-anchor="middle">support-chat</text>
+  <text x="837" y="519" fill="#9E9A8E" font-size="10.5" text-anchor="middle">grounded + cited</text>
+  <rect x="924" y="478" width="176" height="54" rx="9" fill="#1A1D25" stroke="#4A5270"/>
+  <text x="1012" y="502" fill="#F4F1EA" font-size="12.5" font-weight="600" text-anchor="middle">cart get / add</text>
+  <text x="1012" y="519" fill="#9E9A8E" font-size="10.5" text-anchor="middle">session cart</text>
+  <!-- api -> lambda -->
+  <line x1="400" y1="398" x2="330" y2="438" stroke="#F5B838" stroke-width="2" marker-end="url(#ag)"/>
+  <line x1="780" y1="398" x2="800" y2="438" stroke="#6E8BFF" stroke-width="2" marker-end="url(#ab)"/>
+
+  <!-- ===================== ROW 5 : AI + retrieval ===================== -->
+  <text x="60" y="600" fill="#6E6B63" font-size="11" font-weight="700" letter-spacing="1">RETRIEVAL &amp; REASONING</text>
+  <rect x="60" y="612" width="320" height="66" rx="12" fill="#16181D" stroke="#2C2F37"/>
+  <text x="220" y="640" fill="#F4F1EA" font-size="13.5" font-weight="600" text-anchor="middle">Embeddings</text>
+  <text x="220" y="659" fill="#9E9A8E" font-size="11" text-anchor="middle">Bedrock Titan v2  /  local hashed (default)</text>
+  <rect x="400" y="612" width="320" height="66" rx="12" fill="#16181D" stroke="#2C2F37"/>
+  <text x="560" y="640" fill="#F4F1EA" font-size="13.5" font-weight="600" text-anchor="middle">Vector search</text>
+  <text x="560" y="659" fill="#9E9A8E" font-size="11" text-anchor="middle">in-Lambda cosine top-k (no OpenSearch)</text>
+  <rect x="740" y="612" width="380" height="66" rx="12" fill="#16181D" stroke="#F5B838"/>
+  <text x="930" y="640" fill="#F4F1EA" font-size="13.5" font-weight="600" text-anchor="middle">LLM — Groq</text>
+  <text x="930" y="659" fill="#F5B838" font-size="11" text-anchor="middle">openai/gpt-oss-120b · tool-use &amp; grounded answers</text>
+  <!-- lambda -> services -->
+  <line x1="317" y1="532" x2="260" y2="610" stroke="#F5B838" stroke-width="2" marker-end="url(#ag)"/>
+  <line x1="700" y1="532" x2="560" y2="610" stroke="#6E8BFF" stroke-width="2" marker-end="url(#ab)"/>
+  <line x1="837" y1="532" x2="900" y2="610" stroke="#6E8BFF" stroke-width="2" marker-end="url(#ab)"/>
+
+  <!-- ===================== ROW 6 : data ===================== -->
+  <text x="60" y="720" fill="#6E6B63" font-size="11" font-weight="700" letter-spacing="1">STATE &amp; TRUTH  (source of truth for price / stock)</text>
+  <rect x="60" y="732" width="820" height="120" rx="12" fill="#141821" stroke="#2C2F37"/>
+  <text x="80" y="757" fill="#F4F1EA" font-size="13.5" font-weight="700">Amazon DynamoDB · on-demand</text>
+  <rect x="80" y="770" width="185" height="66" rx="9" fill="#1A1D25" stroke="#3A3D46"/>
+  <text x="172" y="798" fill="#F4F1EA" font-size="12" font-weight="600" text-anchor="middle">Tenants</text>
+  <text x="172" y="816" fill="#9E9A8E" font-size="10.5" text-anchor="middle">key → tenant (GSI)</text>
+  <rect x="277" y="770" width="185" height="66" rx="9" fill="#1A1D25" stroke="#3A3D46"/>
+  <text x="369" y="798" fill="#F4F1EA" font-size="12" font-weight="600" text-anchor="middle">Products</text>
+  <text x="369" y="816" fill="#9E9A8E" font-size="10.5" text-anchor="middle">record + embedding</text>
+  <rect x="474" y="770" width="195" height="66" rx="9" fill="#1A1D25" stroke="#3A3D46"/>
+  <text x="571" y="798" fill="#F4F1EA" font-size="12" font-weight="600" text-anchor="middle">Documents</text>
+  <text x="571" y="816" fill="#9E9A8E" font-size="10.5" text-anchor="middle">passage + embedding</text>
+  <rect x="681" y="770" width="179" height="66" rx="9" fill="#1A1D25" stroke="#3A3D46"/>
+  <text x="770" y="798" fill="#F4F1EA" font-size="12" font-weight="600" text-anchor="middle">Carts</text>
+  <text x="770" y="816" fill="#9E9A8E" font-size="10.5" text-anchor="middle">session (TTL)</text>
+  <!-- s3 -->
+  <rect x="900" y="732" width="220" height="120" rx="12" fill="#141821" stroke="#2C2F37"/>
+  <text x="1010" y="757" fill="#F4F1EA" font-size="13.5" font-weight="700" text-anchor="middle">Amazon S3</text>
+  <rect x="920" y="770" width="180" height="66" rx="9" fill="#1A1D25" stroke="#3A3D46"/>
+  <text x="1010" y="798" fill="#F4F1EA" font-size="12" font-weight="600" text-anchor="middle">Raw catalog</text>
+  <text x="1010" y="816" fill="#9E9A8E" font-size="10.5" text-anchor="middle">+ widget hosting</text>
+  <!-- services -> data -->
+  <line x1="220" y1="678" x2="200" y2="730" stroke="#9E9A8E" stroke-width="1.6" marker-end="url(#an)"/>
+  <line x1="560" y1="678" x2="470" y2="730" stroke="#9E9A8E" stroke-width="1.6" marker-end="url(#an)"/>
+  <line x1="930" y1="678" x2="700" y2="732" stroke="#6E8BFF" stroke-width="1.6" marker-end="url(#ab)" stroke-dasharray="4 4"/>
+</svg>
