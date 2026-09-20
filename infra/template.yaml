@@ -9,6 +9,10 @@ Parameters:
     Type: String
     Default: https://finch-widget-938358604976.s3.ap-south-1.amazonaws.com/v.js
     Description: Public URL where v.js is hosted (S3).
+  SupportWidgetCdn:
+    Type: String
+    Default: https://finch-widget-938358604976.s3.ap-south-1.amazonaws.com/support.js
+    Description: Public URL where the Support agent's support.js is hosted (S3).
   ChatModelId:
     Type: String
     Default: apac.amazon.nova-lite-v1:0
@@ -42,10 +46,12 @@ Globals:
         TENANTS_TABLE: !Ref TenantsTable
         PRODUCTS_TABLE: !Ref ProductsTable
         CARTS_TABLE: !Ref CartsTable
+        DOCS_TABLE: !Ref DocumentsTable
         CATALOG_BUCKET: !Ref CatalogBucket
         CHAT_MODEL_ID: !Ref ChatModelId
         EMBED_MODEL_ID: !Ref EmbedModelId
         WIDGET_CDN: !Ref WidgetCdn
+        SUPPORT_WIDGET_CDN: !Ref SupportWidgetCdn
 
 Resources:
   # ---------------- HTTP API ----------------
@@ -146,6 +152,50 @@ Resources:
             Path: /cart/{session_id}/add
             Method: POST
 
+  # ---------------- Support agent (doc-grounded Q&A) ----------------
+  SupportIngestFn:
+    Type: AWS::Serverless::Function
+    Properties:
+      Handler: src.handlers.support.ingest_handler
+      Timeout: 60                              # doc parsing + embedding a batch of chunks
+      Policies:
+        - DynamoDBCrudPolicy: { TableName: !Ref TenantsTable }
+        - DynamoDBCrudPolicy: { TableName: !Ref DocumentsTable }
+        - Statement:                           # only used when FINCH_EMBED=bedrock
+            - Effect: Allow
+              Action: [bedrock:InvokeModel]
+              Resource:
+                - !Sub arn:aws:bedrock:*::foundation-model/*
+                - !Sub arn:aws:bedrock:*:${AWS::AccountId}:inference-profile/*
+      Events:
+        SupportIngest:
+          Type: HttpApi
+          Properties:
+            ApiId: !Ref FinchApi
+            Path: /support/ingest
+            Method: POST
+
+  SupportChatFn:
+    Type: AWS::Serverless::Function
+    Properties:
+      Handler: src.handlers.support.chat_handler
+      Policies:
+        - DynamoDBReadPolicy: { TableName: !Ref TenantsTable }
+        - DynamoDBReadPolicy: { TableName: !Ref DocumentsTable }
+        - Statement:                           # embeddings + the bedrock answer provider
+            - Effect: Allow
+              Action: [bedrock:InvokeModel, bedrock:InvokeModelWithResponseStream]
+              Resource:
+                - !Sub arn:aws:bedrock:*::foundation-model/*
+                - !Sub arn:aws:bedrock:*:${AWS::AccountId}:inference-profile/*
+      Events:
+        SupportChat:
+          Type: HttpApi
+          Properties:
+            ApiId: !Ref FinchApi
+            Path: /support/chat
+            Method: POST
+
   # ---------------- DynamoDB ----------------
   TenantsTable:
     Type: AWS::DynamoDB::Table
@@ -172,6 +222,19 @@ Resources:
       KeySchema:
         - { AttributeName: tenant_id, KeyType: HASH }
         - { AttributeName: product_id, KeyType: RANGE }
+
+  # Support-agent document chunks — one item per passage, embedding on the item
+  # (same discovery-vs-truth pattern as ProductsTable). Queried by tenant_id.
+  DocumentsTable:
+    Type: AWS::DynamoDB::Table
+    Properties:
+      BillingMode: PAY_PER_REQUEST
+      AttributeDefinitions:
+        - { AttributeName: tenant_id, AttributeType: S }
+        - { AttributeName: chunk_id, AttributeType: S }
+      KeySchema:
+        - { AttributeName: tenant_id, KeyType: HASH }
+        - { AttributeName: chunk_id, KeyType: RANGE }
 
   CartsTable:
     Type: AWS::DynamoDB::Table
